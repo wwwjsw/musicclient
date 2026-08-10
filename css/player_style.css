@@ -1,0 +1,139 @@
+/* Previous CSS remains the same */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background: #1a1a1a;
+  color: #fff;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  background: #2a2a2a;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.source-input {
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+/**
+TODO: refactor the folder-btn class name
+*/
+.folder-btn {
+  padding: 0.5rem;
+  background: #dddddd;
+  color: #1a1a1a;
+}
+
+.playlist {
+  background: #333;
+  border-radius: 5px;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.playlist-item {
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: background 0.3s;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.playlist-item:hover {
+  background: #444;
+}
+
+.playlist-item.active {
+  background: #4CAF50;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.control-btn {
+  background: none;
+  border: 2px solid #4CAF50;
+  color: #4CAF50;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 1.2rem;
+}
+
+.control-btn:hover {
+  background: #4CAF50;
+  color: white;
+}
+
+.progress-container {
+  width: 100%;
+  background: #333;
+  height: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  position: relative;
+}
+
+.progress-bar {
+  width: 0%;
+  height: 100%;
+  background: #4CAF50;
+  border-radius: 5px;
+  transition: width 0.1s linear;
+}
+
+.time-display {
+  font-size: 0.9rem;
+  color: #888;
+}
+
+.current-song {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  color: #4CAF50;
+  word-break: break-all;
+}
+
+.volume-control {
+  width: 100%;
+  max-width: 200px;
+  margin: 1rem 0;
+}
+
+.volume-control input {
+  width: 100%;
+}

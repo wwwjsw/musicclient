@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MusicClient v1.4</title>
+  <style>
+    :root {
+      --primary-color: #ffadea;
+      --secondary-color: #ff4994;
+      --background-color: #ffebf8;
+      --text-color: #797979;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: var(--background-color);
+      color: var(--text-color);
+    }
+
+    .player-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .playlist {
+      margin: 20px 0;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .playlist-item {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      background: var(--background-color);
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--secondary-color)
+    }
+
+    .playlist-item.active,
+    .playlist-item:hover {
+      background: var(--background-color);
+      color: var(--primary-color);
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .progress-container {
+      width: 100%;
+      height: 8px;
+      background: #ddd;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: var(--primary-color);
+      width: 0;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      background: var(--primary-color);
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background: var(--secondary-color);
+    }
+
+    .song-info {
+      text-align: center;
+      margin: 10px 0;
+    }
+
+    .time-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+    }
+
+    .volume-slider {
+      width: 100%;
+      margin: 10px 0;
+      background: violet;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .loader-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+    }
+    .loader {
+      border: 16px solid var(--text-color);
+      border-radius: 50%;
+      border-top: 16px solid var(--primary-color);
+      width: 120px;
+      height: 120px;
+      -webkit-animation: spin 2s linear infinite; /* Safari */
+      animation: spin 2s linear infinite;
+    }
+
+    /* Safari */
+    @-webkit-keyframes spin {
+      0% { -webkit-transform: rotate(0deg); }
+      100% { -webkit-transform: rotate(360deg); }
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+<div class="player-container">
+  <div class="loader-container" id="loaderContainer">
+    <div class="loader" id="loader"></div>
+  </div>
+  <div class="playlist" id="playlist">
+    <!-- Playlist items will be inserted here -->
+  </div>
+
+  <div class="controls">
+    <div class="song-info" id="songInfo">
+      Select a song to play
+    </div>
+    <div class="category-container" id="categoryContainer">
+      <button id="categoryAllButton">all</button>
+      <button id="categoryAlbunsButton">Albuns</button>
+    </div>
+    <div class="progress-container" id="progressContainer">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <div class="time-info">
+      <span id="currentTime">0:00</span>
+      <span id="duration">0:00</span>
+    </div>
+
+    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100">
+
+    <div class="buttons">
+      <button id="prevButton">⏮️</button>
+      <button id="playButton">▶️</button>
+      <button id="nextButton">⏭️</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>

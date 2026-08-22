@@ -30,12 +30,25 @@ class AudioPlayer {
     this.categoryAlbunsButton = document.getElementById('categoryAlbunsButton');
 
     this.loaderContainer = document.getElementById('loaderContainer');
+
+    this.playerContent = document.getElementById('player-content');
+    this.serverUrlInput = document.getElementById('server-url-input');
+    this.errorContainer = document.getElementById('errorContainer');
+    this.errorMessage = document.getElementById('errorMessage');
+    this.retryButton = document.getElementById('retryButton');
   }
 
   setupEventListeners() {
+    // server control
+    this.serverUrlInput.addEventListener('change', (e) => this.changeServer(e.target.value))
+
+    // retry control
+    this.retryButton.addEventListener('click', () => this.loadPlaylist())
+
     // filter control
     this.categoryAlbunsButton.addEventListener('click', () => this.changeFilter('albuns'))
     this.categoryAllButton.addEventListener('click', () => this.changeFilter('all'))
+
     // Playback control events
     this.playButton.addEventListener('click', () => this.togglePlay());
     this.prevButton.addEventListener('click', () => this.playPrevious());
@@ -68,30 +81,50 @@ class AudioPlayer {
 
   async loadPlaylist() {
     this.renderLoader(true);
+    this.clearErrorState();
     try {
       const categoryEndpoint = this.selectedCategory === "albuns" ? "/albuns" : "/music"
       const response = await fetch(`${this.serverUrl}${categoryEndpoint}`);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status} - ${response.statusText}`);
+      }
+
       const data = await response.json();
       this.renderLoader(false);
 
+      this.serverUrlInput.value = this.serverUrl;
       this.playlist = data.data;
       this.renderPlaylist();
     } catch (error) {
-      console.error('Error loading playlist:', error);
+      console.log(error);
+      this.renderLoader(false);
+      this.applyErrorState(error.message);
     }
   }
-  
+
+  applyErrorState(message) {
+    this.serverUrlInput.classList.add('error');
+    this.errorMessage.textContent = message || 'Falha ao carregar a lista de músicas. Verifique o endereço do servidor.';
+    this.errorContainer.style.display = 'flex';
+  }
+
+  clearErrorState() {
+    this.serverUrlInput.classList.remove('error');
+    this.errorContainer.style.display = 'none';
+  }
+
   renderLoader(needRender) {
     if (needRender) {
       this.loaderContainer.style.display = "flex";
-      // this.playlistElement.style.display = "none";
+      this.playerContent.style.display = "none";
     } else {
       this.loaderContainer.style.display = "none";
       // this.renderPlaylist();
-      // this.playlistElement.style.display = "block";
+      this.playerContent.style.display = "block";
     }
   }
-  
+
   renderPlaylist() {
     this.playlistElement.innerHTML = this.playlist
       .map((track, index) => `
@@ -132,6 +165,11 @@ class AudioPlayer {
     } catch (error) {
       console.error('Error playing track:', error);
     }
+  }
+
+  async changeServer(serverAddress) {
+    this.serverUrl = serverAddress;
+    await this.loadPlaylist();
   }
 
   async changeFilter(filter) {

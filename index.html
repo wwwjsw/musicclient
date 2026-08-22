@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,7 +27,7 @@
       background: white;
       padding: 20px;
       border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .playlist {
@@ -111,74 +112,135 @@
       margin: 10px 0;
       background: violet;
     }
+
     h1 {
       text-align: center;
       margin-bottom: 20px;
     }
+
     .loader-container {
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100%;
     }
+
     .loader {
       border: 16px solid var(--text-color);
       border-radius: 50%;
       border-top: 16px solid var(--primary-color);
       width: 120px;
       height: 120px;
-      -webkit-animation: spin 2s linear infinite; /* Safari */
+      -webkit-animation: spin 2s linear infinite;
+      /* Safari */
       animation: spin 2s linear infinite;
+    }
+
+    .server-url-input {
+      padding: 1em;
+      border-radius: 1em;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .server-url-input.error {
+      border: 2px solid #e63946;
+      background-color: #ffe5e5;
+    }
+
+    .error-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+      padding: 12px;
+      border: 1px solid #e63946;
+      border-radius: 8px;
+      background-color: #fff0f0;
+    }
+
+    .error-message {
+      margin: 0;
+      color: #e63946;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .retry-button {
+      background: #e63946;
+    }
+
+    .retry-button:hover {
+      background: #c22f3a;
     }
 
     /* Safari */
     @-webkit-keyframes spin {
-      0% { -webkit-transform: rotate(0deg); }
-      100% { -webkit-transform: rotate(360deg); }
+      0% {
+        -webkit-transform: rotate(0deg);
+      }
+
+      100% {
+        -webkit-transform: rotate(360deg);
+      }
     }
-    
+
     @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
     }
   </style>
 </head>
+
 <body>
-<div class="player-container">
-  <div class="loader-container" id="loaderContainer">
-    <div class="loader" id="loader"></div>
+  <div class="player-container">
+    <div class="loader-container" id="loaderContainer">
+      <div class="loader" id="loader"></div>
+    </div>
+    <div class="player-content" id="player-content">
+      <input type="text" class="server-url-input" id="server-url-input">
+      <div class="error-container" id="errorContainer">
+        <p class="error-message" id="errorMessage">Falha ao carregar a lista de músicas. Verifique o endereço do servidor.</p>
+        <button class="retry-button" id="retryButton">Tentar novamente</button>
+      </div>
+      <div class="playlist" id="playlist">
+        <!-- Playlist items will be inserted here -->
+      </div>
+
+      <div class="controls">
+        <div class="song-info" id="songInfo">
+          Select a song to play
+        </div>
+        <div class="category-container" id="categoryContainer">
+          <button id="categoryAllButton">all</button>
+          <button id="categoryAlbunsButton">Albuns</button>
+        </div>
+        <div class="progress-container" id="progressContainer">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <div class="time-info">
+          <span id="currentTime">0:00</span>
+          <span id="duration">0:00</span>
+        </div>
+
+        <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100">
+
+        <div class="buttons">
+          <button id="prevButton">⏮️</button>
+          <button id="playButton">▶️</button>
+          <button id="nextButton">⏭️</button>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="playlist" id="playlist">
-    <!-- Playlist items will be inserted here -->
-  </div>
 
-  <div class="controls">
-    <div class="song-info" id="songInfo">
-      Select a song to play
-    </div>
-    <div class="category-container" id="categoryContainer">
-      <button id="categoryAllButton">all</button>
-      <button id="categoryAlbunsButton">Albuns</button>
-    </div>
-    <div class="progress-container" id="progressContainer">
-      <div class="progress-bar" id="progressBar"></div>
-    </div>
-
-    <div class="time-info">
-      <span id="currentTime">0:00</span>
-      <span id="duration">0:00</span>
-    </div>
-
-    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100">
-
-    <div class="buttons">
-      <button id="prevButton">⏮️</button>
-      <button id="playButton">▶️</button>
-      <button id="nextButton">⏭️</button>
-    </div>
-  </div>
-</div>
-
-<script src="js/app.js"></script>
+  <script src="js/app.js"></script>
 </body>
+
 </html>

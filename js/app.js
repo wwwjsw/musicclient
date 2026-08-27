@@ -4,7 +4,7 @@ class AudioPlayer {
     this.playlist = [];
     this.currentTrack = 0;
     this.isPlaying = false;
-    this.serverUrl = "http://192.168.1.94:8080";
+    this.serverUrl = "http://localhost:8080";
     // Initialize UI elements
     this.initializeElements();
     // Set up event listeners

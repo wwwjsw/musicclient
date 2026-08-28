@@ -2,6 +2,8 @@ class AudioPlayer {
   constructor() {
     this.audio = new Audio();
     this.playlist = [];
+    // [{ albumName, trackStart, trackCount }] when rendering albums, null otherwise
+    this.playlistSections = null;
     this.currentTrack = 0;
     this.isPlaying = false;
     this.serverUrl = "http://localhost:8080";
@@ -58,6 +60,7 @@ class AudioPlayer {
     // Audio element events
     this.audio.addEventListener('timeupdate', () => this.updateProgress());
     this.audio.addEventListener('ended', () => this.playNext());
+    this.audio.addEventListener('error', () => this.handleAudioError());
     this.audio.addEventListener('loadedmetadata', () => {
       this.durationElement.textContent = this.formatTime(this.audio.duration);
     });
@@ -71,6 +74,10 @@ class AudioPlayer {
       if (target.classList.contains('playlist-item')) {
         const index = parseInt(target.getAttribute('data-index'));
         this.playTrack(index);
+      }
+      else if (target.classList.contains('playlist-album-header')) {
+        const start = parseInt(target.getAttribute('data-album-start'));
+        this.playTrack(start);
       }
       else {
         console.warn("click outside playlist")
@@ -94,13 +101,61 @@ class AudioPlayer {
       this.renderLoader(false);
 
       this.serverUrlInput.value = this.serverUrl;
-      this.playlist = data.data;
+
+      const { tracks, sections } = this.normalizePlaylist(data.data);
+      this.playlist = tracks;
+      this.playlistSections = sections;
+
+      if (!Array.isArray(data.data)) {
+        this.applyErrorState('Resposta inesperada do servidor: a lista retornada não é um array.');
+      }
+
+      this.currentTrack = 0;
       this.renderPlaylist();
     } catch (error) {
       console.log(error);
       this.renderLoader(false);
       this.applyErrorState(error.message);
     }
+  }
+
+  /**
+   * Converts the raw endpoint payload into a flat list of playable tracks.
+   * In "albuns" mode the payload is [{ id, album, musics: [...] }] and is
+   * flattened so the player can reproduce the medias in sequence; section
+   * metadata is kept for the grouped rendering.
+   */
+  normalizePlaylist(rawData) {
+    if (!Array.isArray(rawData)) {
+      return { tracks: [], sections: null };
+    }
+
+    if (this.selectedCategory !== "albuns") {
+      return { tracks: rawData, sections: null };
+    }
+
+    const tracks = [];
+    const sections = [];
+    for (const album of rawData) {
+      const musics = Array.isArray(album.musics) ? album.musics : [];
+      if (musics.length === 0) continue;
+
+      sections.push({
+        albumId: album.id,
+        albumName: album.album,
+        trackStart: tracks.length,
+        trackCount: musics.length,
+      });
+
+      for (const music of musics) {
+        tracks.push({
+          ...music,
+          albumId: album.id,
+          albumName: album.album,
+        });
+      }
+    }
+    return { tracks, sections };
   }
 
   applyErrorState(message) {
@@ -126,14 +181,30 @@ class AudioPlayer {
   }
 
   renderPlaylist() {
-    this.playlistElement.innerHTML = this.playlist
-      .map((track, index) => `
+    const renderTrack = (track, index) => `
                 <button class="playlist-item ${index === this.currentTrack ? 'active' : ''}"
                      data-index="${index}">
                     ${track.title} by
                     ${track.artist}
-                </button>
-            `).join('');
+                </button>`;
+
+    if (this.playlistSections && this.playlistSections.length > 0) {
+      let html = '';
+      for (const section of this.playlistSections) {
+        html += `
+          <button class="playlist-album-header" data-album-start="${section.trackStart}">
+            ${section.albumName} (${section.trackCount})
+          </button>`;
+        for (let i = section.trackStart; i < section.trackStart + section.trackCount; i++) {
+          html += renderTrack(this.playlist[i], i);
+        }
+      }
+      this.playlistElement.innerHTML = html;
+    } else {
+      this.playlistElement.innerHTML = this.playlist
+        .map((track, index) => renderTrack(track, index))
+        .join('');
+    }
   }
 
   async playTrack(index) {
@@ -144,31 +215,35 @@ class AudioPlayer {
 
     // Update UI
     this.songInfoElement.textContent = `${track.title} - ${track.artist}`;
+    if (track.albumName) {
+      this.songInfoElement.textContent += ` (${track.albumName})`;
+    }
     this.renderPlaylist();
 
     try {
-      // Set up audio source with range request support
-      const response = await fetch(`${this.serverUrl}/music?audio_id=${track.id}`, {
-        headers: {
-          'Range': 'bytes=0-'
-        }
-      });
-
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        this.audio.src = url;
-        this.audio.play();
-        this.isPlaying = true;
-        this.playButton.textContent = '⏸️';
-      }
+      // The backend provides the authoritative media uri; fall back to the
+      // music endpoint when it is missing.
+      const uri = track.uri || `/music?audio_id=${track.id}`;
+      this.audio.src = `${this.serverUrl}${uri}`;
+      await this.audio.play();
+      this.isPlaying = true;
+      this.playButton.textContent = '⏸️';
     } catch (error) {
       console.error('Error playing track:', error);
     }
   }
 
+  handleAudioError() {
+    console.error('Error loading audio for track', this.currentTrack);
+    // Skip unplayable medias: advance to the next track only while one exists,
+    // so a broken track cannot loop the playlist forever.
+    if (this.currentTrack < this.playlist.length - 1) {
+      this.playNext();
+    }
+  }
+
   async changeServer(serverAddress) {
-    this.serverUrl = serverAddress;
+    this.serverUrl = serverAddress.replace(/\/+$/, '');
     await this.loadPlaylist();
   }
 
